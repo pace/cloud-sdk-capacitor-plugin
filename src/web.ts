@@ -1,5 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
-import { CloudSDKPlugin } from './definitions';
+import {
+  AppData,
+  CloudSDKPlugin,
+  Configuration,
+  GasStation,
+} from './definitions';
 
 export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
   constructor() {
@@ -9,9 +14,26 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
     });
   }
 
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
+  async setup(config: Configuration): Promise<boolean> {
+    throw new Error('This method not available in web');
+  }
+
+  async listAvailableCoFuStations(
+    countries = [],
+  ): Promise<{ results: GasStation[] }> {
+    throw new Error('This method not available in web');
+  }
+
+  async checkForLocalApps(): Promise<{ results: AppData[] }> {
+    throw new Error('This method not available in web');
+  }
+
+  async isPoiInRange(poiId: string): Promise<{ result: boolean }> {
+    throw new Error('This method not available in web');
+  }
+
+  async startApp(appStartUrl: string): Promise<boolean> {
+    throw new Error('This method not available in web');
   }
 }
 
