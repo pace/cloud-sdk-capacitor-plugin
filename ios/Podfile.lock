@@ -1,11 +1,33 @@
 PODS:
+  - AppAuth (1.4.0):
+    - AppAuth/Core (= 1.4.0)
+    - AppAuth/ExternalUserAgent (= 1.4.0)
+  - AppAuth/Core (1.4.0)
+  - AppAuth/ExternalUserAgent (1.4.0)
+  - Base32 (1.1.2)
   - Capacitor (2.4.7):
     - CapacitorCordova
   - CapacitorCordova (2.4.7)
+  - OneTimePassword (3.2.0):
+    - Base32 (~> 1.1.2)
+  - PACECloudSDK (5.0.1):
+    - AppAuth
+    - OneTimePassword (~> 3.2.0)
+    - SwiftProtobuf (~> 1.13.0)
+  - SwiftProtobuf (1.13.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../node_modules/@capacitor/ios`)"
   - "CapacitorCordova (from `../node_modules/@capacitor/ios`)"
+  - PACECloudSDK
+
+SPEC REPOS:
+  trunk:
+    - AppAuth
+    - Base32
+    - OneTimePassword
+    - PACECloudSDK
+    - SwiftProtobuf
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -14,9 +36,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@capacitor/ios"
 
 SPEC CHECKSUMS:
+  AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
+  Base32: 163c298644d184e89ca4e00a996bad6bf5166390
   Capacitor: 4cd7b342d5a15b1f6f333d687358953afd7b2d8b
   CapacitorCordova: 2c9d6e28d9d86c4da087fa2c3537c1841954bb12
+  OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
+  PACECloudSDK: f7d4743d988b612a66cfdb8d846391d7688ffaba
+  SwiftProtobuf: fd4693388a96c8c2df35d3b063272b0e7c499d00
 
-PODFILE CHECKSUM: e66d6fa04b0daaf06d8498d39637adf77139c716
+PODFILE CHECKSUM: b70f4636bb0cfb56f1d1e67d4f9c17b6f4aa2c89
 
 COCOAPODS: 1.10.0
