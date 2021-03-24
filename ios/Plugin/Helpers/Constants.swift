@@ -16,4 +16,13 @@ struct Constants {
 
     static let environment = "environment"
     static let production = "production"
+
+    static let countries = "countries"
+
+    static let poiId = "poiId"
+
+    static let url = "url"
+
+    static let result = "result"
+    static let results = "results"
 }

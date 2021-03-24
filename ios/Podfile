@@ -5,11 +5,11 @@ def capacitor_pods
   use_frameworks!
   pod 'Capacitor', :path => '../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../node_modules/@capacitor/ios'
-  pod 'PACECloudSDK'
 end
 
 target 'Plugin' do
   capacitor_pods
+  pod 'PACECloudSDK', :git => 'https://github.com/pace/cloud-sdk-ios', :branch => 'master'
 end
 
 target 'PluginTests' do

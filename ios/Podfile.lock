@@ -19,14 +19,13 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../node_modules/@capacitor/ios`)"
   - "CapacitorCordova (from `../node_modules/@capacitor/ios`)"
-  - PACECloudSDK
+  - PACECloudSDK (from `https://github.com/pace/cloud-sdk-ios`, branch `master`)
 
 SPEC REPOS:
   trunk:
     - AppAuth
     - Base32
     - OneTimePassword
-    - PACECloudSDK
     - SwiftProtobuf
 
 EXTERNAL SOURCES:
@@ -34,6 +33,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@capacitor/ios"
   CapacitorCordova:
     :path: "../node_modules/@capacitor/ios"
+  PACECloudSDK:
+    :branch: master
+    :git: https://github.com/pace/cloud-sdk-ios
+
+CHECKOUT OPTIONS:
+  PACECloudSDK:
+    :commit: 80df7858d7d93eb25749267de3cc7ea1254c3dfc
+    :git: https://github.com/pace/cloud-sdk-ios
 
 SPEC CHECKSUMS:
   AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
@@ -44,6 +51,6 @@ SPEC CHECKSUMS:
   PACECloudSDK: f7d4743d988b612a66cfdb8d846391d7688ffaba
   SwiftProtobuf: fd4693388a96c8c2df35d3b063272b0e7c499d00
 
-PODFILE CHECKSUM: b70f4636bb0cfb56f1d1e67d4f9c17b6f4aa2c89
+PODFILE CHECKSUM: 1df86406ecd89969fa5f7ee79f33c7a25b91c178
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.10.1
