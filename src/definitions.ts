@@ -35,9 +35,20 @@ export interface Configuration {
   environment?: Environment;
 }
 
+export interface Address {
+  countryCode?: string;
+  city?: string;
+  zipCode?: string;
+  suburb?: string;
+  state?: string;
+  street?: string;
+  houseNumber?: string;
+}
+
 export interface GasStation {
   id: string;
   name: string;
+  address?: Address;
   coordinates: [number, number][];
   isConnectedFuelingAvailable: boolean;
   lastUpdated: Date;
