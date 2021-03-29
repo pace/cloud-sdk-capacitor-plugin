@@ -35,33 +35,12 @@ export interface Configuration {
   environment?: Environment;
 }
 
-export enum PaymentMethod {
-  PAYPAL = 'paypal',
-  APPLE_PAY = 'applePay',
-}
-
 export interface GasStation {
   id: string;
+  name: string;
   coordinates: [number, number][];
-  brand: string;
-  paymentMethods: PaymentMethod[];
-}
-
-export interface AppDataIcon {
-  src: string;
-  size: string;
-  type: string;
-}
-
-export interface AppData {
-  title: string;
-  subtitle: string;
-  icon: AppDataIcon;
-  appBaseUrl: string;
-  appStartUrl: string;
-  themeColor: string;
-  backgroundColor: string;
-  textColor: string;
+  isConnectedFuelingAvailable: boolean;
+  lastUpdated: Date;
 }
 
 export enum PresetUrl {
@@ -78,18 +57,16 @@ export interface CloudSDKPlugin {
   setup(config: Configuration): Promise<boolean>;
 
   /**
-   * Lists all available GasStations that support Connected Fueling
-   * @param countries takes a list of two-letter ISO 3166 country code; if none are provided, all stations will be returned
+   * Returns a list of gasStations nearby, based on the users' location
+   * @param radius is the radius to search in
    */
-  listAvailableCoFuStations(
-    countries?: string[],
-  ): Promise<{ results: GasStation[] }>;
+  getNearbyGasStations(radius: number): Promise<{ results: GasStation[] }>;
 
   /**
-   * Returns all Apps that can be started from the users' location.
-   * Make sure your app asks for permission to use the location, before calling this method.
+   * Returns details about a given set of GasStation ids
+   * @param poiIds are poiIds of GasStations
    */
-  checkForLocalApps(): Promise<{ results: AppData[] }>;
+  getGasStations(poiIds: string[]): Promise<{ results: GasStation[] }>;
 
   /**
    * Check if there is a App for the given GasStation Id at the current location

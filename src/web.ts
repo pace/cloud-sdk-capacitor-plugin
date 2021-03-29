@@ -1,10 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import {
-  AppData,
-  CloudSDKPlugin,
-  Configuration,
-  GasStation,
-} from './definitions';
+import { CloudSDKPlugin, Configuration, GasStation } from './definitions';
 
 export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
   constructor() {
@@ -14,29 +9,31 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
     });
   }
 
-  async setup(config: Configuration): Promise<boolean> {
+  async setup(_config: Configuration): Promise<boolean> {
     throw new Error('This method not is available in web');
   }
 
-  async listAvailableCoFuStations(
-    countries = [],
+  async getNearbyGasStations(
+    _radius: number = 20,
   ): Promise<{ results: GasStation[] }> {
     throw new Error('This method not is available in web');
   }
 
-  async checkForLocalApps(): Promise<{ results: AppData[] }> {
+  async getGasStations(
+    _poiIds: string[] = [],
+  ): Promise<{ results: GasStation[] }> {
     throw new Error('This method not is available in web');
   }
 
-  async isPoiInRange(poiId: string): Promise<{ result: boolean }> {
+  async isPoiInRange(_poiId: string): Promise<{ result: boolean }> {
     throw new Error('This method not is available in web');
   }
 
-  async startApp(appStartUrl: string): Promise<boolean> {
+  async startApp(_appStartUrl: string): Promise<boolean> {
     throw new Error('This method not is available in web');
   }
 
-  async startFuelingApp(poiId: string): Promise<boolean> {
+  async startFuelingApp(_poiId: string): Promise<boolean> {
     throw new Error('This method not is available in web');
   }
 }
