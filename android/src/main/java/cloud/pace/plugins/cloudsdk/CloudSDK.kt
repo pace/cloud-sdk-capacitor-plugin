@@ -97,7 +97,7 @@ class CloudSDK : Plugin() {
 
     @PluginMethod
     fun isPoiInRange(call: PluginCall) {
-        val poiId = call.getString(POID_ID)
+        val poiId = call.getString(POI_ID)
         if (poiId == null) {
             call.reject("Failed isPoiInRange: Missing PoiID")
             return
@@ -123,11 +123,23 @@ class CloudSDK : Plugin() {
     fun startApp(call: PluginCall) {
         val inputString = call.getString(URL)
         if (inputString == null) {
-            call.reject("Failed start app: Missing URL")
+            call.reject("Failed startApp: Missing URL")
             return
         }
 
         AppKit.openAppActivity(context, inputString)
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun startFuelingApp(call: PluginCall) {
+        val inputString = call.getString(POI_ID)
+        if (inputString == null) {
+            call.reject("Failed startFuelingApp: Missing ID")
+            return
+        }
+
+        AppKit.openFuelingApp(context, POI_ID)
         call.resolve()
     }
 
@@ -142,9 +154,10 @@ class CloudSDK : Plugin() {
         const val PRODUCTION = "production"
 
         const val COUNTRIES = "countries"
-        const val POID_ID = "poiId"
+        const val POI_ID = "poiId"
         const val URL = "url"
         const val RESULT = "result"
         const val RESULTS = "results"
+
     }
 }
