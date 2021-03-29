@@ -15,25 +15,29 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
   }
 
   async setup(config: Configuration): Promise<boolean> {
-    throw new Error('This method not available in web');
+    throw new Error('This method not is available in web');
   }
 
   async listAvailableCoFuStations(
     countries = [],
   ): Promise<{ results: GasStation[] }> {
-    throw new Error('This method not available in web');
+    throw new Error('This method not is available in web');
   }
 
   async checkForLocalApps(): Promise<{ results: AppData[] }> {
-    throw new Error('This method not available in web');
+    throw new Error('This method not is available in web');
   }
 
   async isPoiInRange(poiId: string): Promise<{ result: boolean }> {
-    throw new Error('This method not available in web');
+    throw new Error('This method not is available in web');
   }
 
   async startApp(appStartUrl: string): Promise<boolean> {
-    throw new Error('This method not available in web');
+    throw new Error('This method not is available in web');
+  }
+
+  async startFuelingApp(poiId: string): Promise<boolean> {
+    throw new Error('This method not is available in web');
   }
 }
 

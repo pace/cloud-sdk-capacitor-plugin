@@ -52,6 +52,7 @@ export interface AppDataIcon {
   size: string;
   type: string;
 }
+
 export interface AppData {
   title: string;
   subtitle: string;
@@ -77,7 +78,7 @@ export interface CloudSDKPlugin {
   setup(config: Configuration): Promise<boolean>;
 
   /**
-   * Lists all available POI stations that support Connected Fueling
+   * Lists all available GasStations that support Connected Fueling
    * @param countries takes a list of two-letter ISO 3166 country code; if none are provided, all stations will be returned
    */
   listAvailableCoFuStations(
@@ -85,14 +86,14 @@ export interface CloudSDKPlugin {
   ): Promise<{ results: GasStation[] }>;
 
   /**
-   * Returns all Apps that can be started from the users location. Make sure your users allowed
-   * your app to use their location before calling this method, as it will not ask for it.
+   * Returns all Apps that can be started from the users' location.
+   * Make sure your app asks for permission to use the location, before calling this method.
    */
   checkForLocalApps(): Promise<{ results: AppData[] }>;
 
   /**
    * Check if there is a App for the given GasStation Id at the current location
-   * @param poiId is the Id of a Connected Fueling station
+   * @param poiId is the Id of a GasStation
    */
   isPoiInRange(poiId: string): Promise<{ result: boolean }>;
 
@@ -101,4 +102,10 @@ export interface CloudSDKPlugin {
    * @param url is the appStartUrl from an App, or one of predefined presetUrls
    */
   startApp(url: string | PresetUrl): Promise<boolean>;
+
+  /**
+   * Start an App for a given poiId
+   * @param url is the Id of a GasStation
+   */
+  startFuelingApp(poiId: string): Promise<boolean>;
 }
