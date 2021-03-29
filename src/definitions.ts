@@ -63,12 +63,6 @@ export interface CloudSDKPlugin {
   getNearbyGasStations(radius: number): Promise<{ results: GasStation[] }>;
 
   /**
-   * Returns details about a given set of GasStation ids
-   * @param poiIds are poiIds of GasStations
-   */
-  getGasStations(poiIds: string[]): Promise<{ results: GasStation[] }>;
-
-  /**
    * Check if there is a App for the given GasStation Id at the current location
    * @param poiId is the Id of a GasStation
    */

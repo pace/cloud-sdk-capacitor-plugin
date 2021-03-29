@@ -19,12 +19,6 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
     throw new Error('This method not is available in web');
   }
 
-  async getGasStations(
-    _poiIds: string[] = [],
-  ): Promise<{ results: GasStation[] }> {
-    throw new Error('This method not is available in web');
-  }
-
   async isPoiInRange(_poiId: string): Promise<{ result: boolean }> {
     throw new Error('This method not is available in web');
   }
