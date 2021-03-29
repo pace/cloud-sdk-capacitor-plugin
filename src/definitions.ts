@@ -57,10 +57,14 @@ export interface CloudSDKPlugin {
   setup(config: Configuration): Promise<boolean>;
 
   /**
-   * Returns a list of gasStations nearby, based on the users' location
+   * Returns a list of gasStations based on a given coordinate
+   * @param coordinate is the coordinate to search from
    * @param radius is the radius to search in
    */
-  getNearbyGasStations(radius: number): Promise<{ results: GasStation[] }>;
+  getNearbyGasStations(
+    coordinate: [number, number],
+    radius: number,
+  ): Promise<{ results: GasStation[] }>;
 
   /**
    * Check if there is a App for the given GasStation Id at the current location

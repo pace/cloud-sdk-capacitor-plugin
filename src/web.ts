@@ -14,6 +14,7 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
   }
 
   async getNearbyGasStations(
+    _coordinate: [number, number] = [0, 0],
     _radius: number = 20,
   ): Promise<{ results: GasStation[] }> {
     throw new Error('This method not is available in web');
