@@ -41,12 +41,8 @@ public class CloudSDK: CAPPlugin {
             return
         }
 
-        guard let countries = call.getArray(Constants.countries, String.self) else {
-            call.reject("Failed listAvailableCoFuStations due to a missing value for '\(Constants.countries)'")
-            return
-        }
-
-        let countryString = countries.filter { !$0.isEmpty }.joined(separator: ",")
+        let countries = call.getArray(Constants.countries, String.self)
+        let countryString = countries?.filter { !$0.isEmpty }.joined(separator: ",")
         let request = GeoJSONAPI.GetBetaGeojsonPois.Request(fieldsgasStation: "stationName,brand",
                                                             filterpoiType: .gasStation,
                                                             filteronlinePaymentMethod: "paydirekt,paypal,creditcard,sepa,pacePay,applepay",
@@ -109,6 +105,13 @@ public class CloudSDK: CAPPlugin {
             return
         }
 
+        presentViewController(appVC: appVC, for: call)
+    }
+
+    @objc
+    public func startFuelingApp(_ call: CAPPluginCall) {
+        let poiId = call.getString(Constants.poiId)
+        let appVC = AppKit.shared.appViewController(presetUrl: .fueling(id: poiId))
         presentViewController(appVC: appVC, for: call)
     }
 

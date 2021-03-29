@@ -13,8 +13,8 @@ PODS:
   - PACECloudSDK (5.0.1):
     - AppAuth
     - OneTimePassword (~> 3.2.0)
-    - SwiftProtobuf (~> 1.13.0)
-  - SwiftProtobuf (1.13.0)
+    - SwiftProtobuf (~> 1.15.0)
+  - SwiftProtobuf (1.15.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../node_modules/@capacitor/ios`)"
@@ -39,7 +39,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   PACECloudSDK:
-    :commit: 80df7858d7d93eb25749267de3cc7ea1254c3dfc
+    :commit: 48e8be3319641bf01afdd337e88ded7ce263645f
     :git: https://github.com/pace/cloud-sdk-ios
 
 SPEC CHECKSUMS:
@@ -48,8 +48,8 @@ SPEC CHECKSUMS:
   Capacitor: 4cd7b342d5a15b1f6f333d687358953afd7b2d8b
   CapacitorCordova: 2c9d6e28d9d86c4da087fa2c3537c1841954bb12
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
-  PACECloudSDK: f7d4743d988b612a66cfdb8d846391d7688ffaba
-  SwiftProtobuf: fd4693388a96c8c2df35d3b063272b0e7c499d00
+  PACECloudSDK: 043a072a54661b3c793c1be58b56e3ab109d5a89
+  SwiftProtobuf: 3320217e9d8fb75f36b40282e78c482640fd75dd
 
 PODFILE CHECKSUM: 1df86406ecd89969fa5f7ee79f33c7a25b91c178
 
