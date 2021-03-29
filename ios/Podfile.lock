@@ -39,7 +39,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   PACECloudSDK:
-    :commit: 48e8be3319641bf01afdd337e88ded7ce263645f
+    :commit: ee76dda7e46ec96152625491c240cc18ea51ba95
     :git: https://github.com/pace/cloud-sdk-ios
 
 SPEC CHECKSUMS:
