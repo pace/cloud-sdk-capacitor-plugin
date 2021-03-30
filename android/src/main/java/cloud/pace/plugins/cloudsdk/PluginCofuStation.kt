@@ -1,3 +1,20 @@
 package cloud.pace.plugins.cloudsdk
 
-data class PluginCofuStation(val id: String?, val coordinates: List<Double>?, val brand: String?, val paymentMethods: List<String>?)
+import java.util.*
+
+data class PluginCofuStation(
+        val id: String?,
+        val name: String?,
+        val address: Address?,
+        val coordinates: List<Double>?,
+        val isConnectedFuelingAvailable: Boolean?,
+        val lastUpdated: Date?
+)
+
+data class Address(
+        val countryCode: String?,
+        val city: String?,
+        val zipCode: String?,
+        val streetName: String?,
+        val houseNumber: String?
+)
