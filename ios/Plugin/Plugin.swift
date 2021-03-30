@@ -59,7 +59,7 @@ public class CloudSDK: CAPPlugin {
                 self?.dispatchToMainThread(call.resolve([Constants.results.rawValue: pluginStations]))
 
             case .failure(let error):
-                self?.dispatchToMainThread(call.reject("Failed listAvailableCoFuStations with error \(error.localizedDescription)"))
+                self?.dispatchToMainThread(call.reject("Failed getNearbyGasStations with error \(error.localizedDescription)"))
             }
         }
     }
