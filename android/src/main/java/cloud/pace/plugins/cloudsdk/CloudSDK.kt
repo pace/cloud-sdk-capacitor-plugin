@@ -2,13 +2,14 @@ package cloud.pace.plugins.cloudsdk
 
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
-import cloud.pace.sdk.api.API
-import cloud.pace.sdk.api.geojson.GeoJSONAPI.geoJSON
-import cloud.pace.sdk.api.geojson.generated.request.geoJSON.GetBetaGeojsonPoisAPI
-import cloud.pace.sdk.api.geojson.generated.request.geoJSON.GetBetaGeojsonPoisAPI.getBetaGeojsonPois
 import cloud.pace.sdk.appkit.AppKit
+import cloud.pace.sdk.poikit.POIKit
+import cloud.pace.sdk.poikit.poi.GasStation
+import cloud.pace.sdk.poikit.utils.LatLngBounds
+import cloud.pace.sdk.poikit.utils.toVisibleRegion
 import cloud.pace.sdk.utils.*
 import com.getcapacitor.*
+import com.google.android.gms.maps.model.LatLng
 
 @NativePlugin
 class CloudSDK : Plugin() {
@@ -49,53 +50,6 @@ class CloudSDK : Plugin() {
     }
 
     @PluginMethod
-    fun listAvailableCoFuStations(call: PluginCall) {
-        if (cofuStationFetchRunning) {
-            call.reject("Failed listAvailableCoFuStations: Already running")
-            return
-        }
-
-        val countries = call.getArray(COUNTRIES)
-        val countryString = countries.join(",")
-        cofuStationFetchRunning = true
-        API.geoJSON.getBetaGeojsonPois(
-                fieldsgasStation = "stationName,brand",
-                filterpoiType = GetBetaGeojsonPoisAPI.FilterpoiType.GASSTATION,
-                filteronlinePaymentMethod = "paydirekt,paypal,creditcard,sepa,pacePay",
-                filtercountry = countryString,
-                filterconnectedFueling = "true"
-        ).enqueue {
-            onResponse = {
-                val body = it.body()
-                if (it.isSuccessful && body != null) {
-                    val result = mutableListOf<PluginCofuStation>()
-                    body.features?.forEach {
-                        val onlinePaymentMethods = it.properties?.get("onlinePaymentMethods")
-                        val paymentMethodList = if (onlinePaymentMethods is List<*>) onlinePaymentMethods.filterIsInstance(String::class.java) else listOf()
-                        result.add(PluginCofuStation(
-                                it.id,
-                                it.geometry?.coordinates?.map { it.toDouble() },
-                                it.properties?.get("brand").toString(),
-                                paymentMethodList)
-                        )
-                    }
-
-                    val response = JSObject()
-                    response.put(RESULTS, result)
-                    dispatchOnMainThread { call.resolve(response) }
-                } else
-                    dispatchOnMainThread { call.reject("Failed listAvailableCoFuStations: Response not successful or body null") }
-                cofuStationFetchRunning = false
-            }
-
-            onFailure = {
-                dispatchOnMainThread { call.reject("Failed listAvailableCoFuStations: Error: ${it?.localizedMessage}") }
-                cofuStationFetchRunning = false
-            }
-        }
-    }
-
-    @PluginMethod
     fun isPoiInRange(call: PluginCall) {
         val poiId = call.getString(POI_ID)
         if (poiId == null) {
@@ -106,15 +60,6 @@ class CloudSDK : Plugin() {
         AppKit.isPoiInRange(poiId) {
             val response = JSObject()
             response.put(RESULT, it)
-            call.resolve(response)
-        }
-    }
-
-    @PluginMethod
-    fun checkForLocalApps(call: PluginCall) {
-        AppKit.requestLocalApps {
-            val response = JSObject()
-            response.put(RESULTS, (it as? Success)?.result)
             call.resolve(response)
         }
     }
@@ -143,6 +88,51 @@ class CloudSDK : Plugin() {
         call.resolve()
     }
 
+    @PluginMethod
+    fun getNearbyGasStations(call: PluginCall) {
+        val userLocation = call.getArray(USER_LOCATION)
+        val radius = call.getDouble(RADIUS)
+
+        if (userLocation == null || userLocation.length() != 2) {
+            call.reject("Failed getNearbyGasStations: User location null or invalid")
+            return
+        }
+        if (radius == null) {
+            call.reject("Failed getNearbyGasStations: Missing value for radius")
+            return
+        }
+
+        val visibleRegion = LatLngBounds(LatLng(userLocation.getDouble(1), userLocation.getDouble(0)), radius).toVisibleRegion()
+        POIKit.observe(visibleRegion) {
+            when (it) {
+                is Success -> {
+                    val result = mutableListOf<PluginCofuStation>()
+                    it.result.filterIsInstance(GasStation::class.java).forEach {
+                        val address = Address(it.address?.countryCode, it.address?.city, it.address?.postalCode, it.address?.street, it.address?.houseNumber)
+                        result.add(
+                                PluginCofuStation(
+                                        it.id,
+                                        it.name,
+                                        address,
+                                        listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
+                                        it.isConnectedFuelingAvailable,
+                                        it.updatedAt
+                                )
+                        )
+                    }
+
+                    val response = JSObject()
+                    response.put(RESULTS, result)
+                    dispatchOnMainThread { call.resolve(response) }
+                }
+
+                is Failure -> {
+                    dispatchOnMainThread { call.reject("Failed getNearbyGasStations: ${it.throwable.localizedMessage}") }
+                }
+            }
+        }
+    }
+
     companion object {
         const val CLIENT_APP_NAME = "clientAppName"
         const val CLIENT_APP_VERSION = "clientAppVersion"
@@ -153,11 +143,11 @@ class CloudSDK : Plugin() {
         const val ENVIRONMENT = "environment"
         const val PRODUCTION = "production"
 
-        const val COUNTRIES = "countries"
         const val POI_ID = "poiId"
         const val URL = "url"
         const val RESULT = "result"
         const val RESULTS = "results"
-
+        const val USER_LOCATION = "user_location"
+        const val RADIUS = "radius"
     }
 }
