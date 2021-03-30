@@ -1,4 +1,5 @@
 import Capacitor
+import CoreLocation
 import Foundation
 import PACECloudSDK
 
@@ -8,18 +9,18 @@ import PACECloudSDK
  */
 @objc(CloudSDK)
 public class CloudSDK: CAPPlugin {
-    private var checkForLocalAppsCallback: CAPPluginCall?
-    private var isCofuStationsFetchRunning = false
+    private var poiKitManager: POIKit.POIKitManager?
+    private var downloadTask: CancellablePOIAPIRequest?
 
     @objc
     public func setup(_ call: CAPPluginCall) {
-        guard let apiKey = call.getString(Constants.apiKey) else {
-            call.reject("Failed setup due to a missing value for '\(Constants.apiKey)'.")
+        guard let apiKey = call.getString(Constants.apiKey.rawValue) else {
+            call.reject("Failed setup due to a missing value for '\(Constants.apiKey.rawValue)'.")
             return
         }
 
-        let callAuthenticationMode = call.getString(Constants.authenticationMode) ?? Constants.web
-        let callEnvironment = call.getString(Constants.environment) ?? Constants.production
+        let callAuthenticationMode = call.getString(Constants.authenticationMode.rawValue) ?? Constants.web.rawValue
+        let callEnvironment = call.getString(Constants.environment.rawValue) ?? Constants.production.rawValue
 
         let authenticationMode = PACECloudSDK.AuthenticationMode(rawValue: callAuthenticationMode) ?? .web
         let environment = PACECloudSDK.Environment(rawValue: callEnvironment) ?? .production
@@ -29,36 +30,33 @@ public class CloudSDK: CAPPlugin {
                                                               environment: environment)
 
         PACECloudSDK.shared.setup(with: configuration)
-        AppKit.shared.delegate = self
+        poiKitManager = POIKit.POIKitManager(environment: environment)
 
         call.resolve()
     }
 
     @objc
-    public func listAvailableCoFuStations(_ call: CAPPluginCall) {
-        guard !isCofuStationsFetchRunning else {
-            call.reject("Failed listAvailableCoFuStations due to: Fetch already running...")
+    public func getNearbyGasStations(_ call: CAPPluginCall) {
+        guard let radius = call.getDouble(Constants.radius.rawValue) else {
+            call.reject("Failed getNearbyGasStations due to a missing value for '\(Constants.radius.rawValue)'.")
             return
         }
 
-        let countries = call.getArray(Constants.countries, String.self)
-        let countryString = countries?.filter { !$0.isEmpty }.joined(separator: ",")
-        let request = GeoJSONAPI.GetBetaGeojsonPois.Request(fieldsgasStation: "stationName,brand",
-                                                            filterpoiType: .gasStation,
-                                                            filteronlinePaymentMethod: "paydirekt,paypal,creditcard,sepa,pacePay,applepay",
-                                                            filtercountry: countryString,
-                                                            filterconnectedFueling: "true")
-        isCofuStationsFetchRunning = true
+        guard let coordinate = call.getArray(Constants.coordinate.rawValue, Double.self),
+              let lon = coordinate[safe: 0],
+              let lat = coordinate[safe: 1] else {
+            call.reject("Failed getNearbyGasStations due to a missing value for '\(Constants.coordinate.rawValue)'.")
+            return
+        }
 
-        API.GeoJSON.client.makeRequest(request) { [weak self] response in
-            defer {
-                self?.isCofuStationsFetchRunning = false
-            }
+        let location = CLLocationCoordinate2D(latitude: lat, longitude: lon)
 
-            switch response.result {
-            case .success(let result):
-                let cofuStations: [PluginCoFuGasStation] = result.success?.features?.compactMap { PluginCoFuGasStation(from: $0) } ?? []
-                self?.dispatchToMainThread(call.resolve([Constants.results: cofuStations]))
+        downloadTask?.cancel()
+        downloadTask = poiKitManager?.fetchPOIs(poisOfType: .gasStation, boundingBox: POIKit.BoundingBox(center: location, radius: radius), forceLoad: true) { [weak self] result in
+            switch result {
+            case .success(let stations):
+                let pluginStations: [PluginGasStation] = stations.compactMap { PluginGasStation(from: $0) }
+                self?.dispatchToMainThread(call.resolve([Constants.results.rawValue: pluginStations]))
 
             case .failure(let error):
                 self?.dispatchToMainThread(call.reject("Failed listAvailableCoFuStations with error \(error.localizedDescription)"))
@@ -68,26 +66,20 @@ public class CloudSDK: CAPPlugin {
 
     @objc
     public func isPoiInRange(_ call: CAPPluginCall) {
-        guard let poiId = call.getString(Constants.poiId) else {
-            call.reject("Failed isPoiInRange due to a missing value for '\(Constants.poiId)'.")
+        guard let poiId = call.getString(Constants.poiId.rawValue) else {
+            call.reject("Failed isPoiInRange due to a missing value for '\(Constants.poiId.rawValue)'.")
             return
         }
 
         AppKit.shared.isPoiInRange(id: poiId) { result in
-            call.resolve([Constants.result: result])
+            call.resolve([Constants.result.rawValue: result])
         }
     }
 
     @objc
-    public func checkForLocalApps(_ call: CAPPluginCall) {
-        checkForLocalAppsCallback = call
-        AppKit.shared.requestLocalApps()
-    }
-
-    @objc
     public func startApp(_ call: CAPPluginCall) {
-        guard let inputString = call.getString(Constants.url) else {
-            call.reject("Failed startApp due to a missing value for '\(Constants.url)'.")
+        guard let inputString = call.getString(Constants.url.rawValue) else {
+            call.reject("Failed startApp due to a missing value for '\(Constants.url.rawValue)'.")
             return
         }
 
@@ -101,7 +93,7 @@ public class CloudSDK: CAPPlugin {
             // cannot be used in the plugin context
             appVC = AppKit.shared.appViewController(appUrl: inputString)
         } else {
-            call.reject("Failed startApp due to an invalid value for '\(Constants.url)'")
+            call.reject("Failed startApp due to an invalid value for '\(Constants.url.rawValue)'")
             return
         }
 
@@ -110,7 +102,7 @@ public class CloudSDK: CAPPlugin {
 
     @objc
     public func startFuelingApp(_ call: CAPPluginCall) {
-        let poiId = call.getString(Constants.poiId)
+        let poiId = call.getString(Constants.poiId.rawValue)
         let appVC = AppKit.shared.appViewController(presetUrl: .fueling(id: poiId))
         presentViewController(appVC: appVC, for: call)
     }
@@ -126,19 +118,6 @@ public class CloudSDK: CAPPlugin {
     private func dispatchToMainThread(_ block: @autoclosure @escaping () -> Void) {
         DispatchQueue.main.async {
             block()
-        }
-    }
-}
-
-extension CloudSDK: AppKitDelegate {
-    public func didFail(with error: AppKit.AppError) {}
-
-    public func didReceiveAppDrawers(_ appDrawers: [AppKit.AppDrawer], _ appDatas: [AppKit.AppData]) {
-        let appDataList: [PluginAppData] = appDatas.compactMap { PluginAppData(from: $0) }
-
-        DispatchQueue.main.async { [weak self] in
-            self?.checkForLocalAppsCallback?.resolve([Constants.results: appDataList])
-            self?.checkForLocalAppsCallback = nil
         }
     }
 }

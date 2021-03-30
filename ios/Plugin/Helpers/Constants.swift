@@ -8,21 +8,21 @@
 
 import Foundation
 
-struct Constants {
-    static let apiKey = "apiKey"
+enum Constants: String {
+    case apiKey
 
-    static let authenticationMode = "authenticationMode"
-    static let web = "web"
+    case authenticationMode
+    case web
 
-    static let environment = "environment"
-    static let production = "production"
+    case environment
+    case production
 
-    static let countries = "countries"
+    case poiId
+    case radius
+    case coordinate
 
-    static let poiId = "poiId"
+    case url
 
-    static let url = "url"
-
-    static let result = "result"
-    static let results = "results"
+    case result
+    case results
 }
