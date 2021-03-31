@@ -12,6 +12,9 @@ public class CloudSDK: CAPPlugin {
     private var poiKitManager: POIKit.POIKitManager?
     private var downloadTask: CancellablePOIAPIRequest?
 
+    // Event callbacks
+    private var callbacks: [String: Any] = [:]
+
     @objc
     public func setup(_ call: CAPPluginCall) {
         guard let apiKey = call.getString(Constants.apiKey.rawValue) else {
@@ -31,6 +34,8 @@ public class CloudSDK: CAPPlugin {
 
         PACECloudSDK.shared.setup(with: configuration)
         poiKitManager = POIKit.POIKitManager(environment: environment)
+
+        AppKit.shared.delegate = self
 
         call.resolve()
     }
@@ -107,6 +112,26 @@ public class CloudSDK: CAPPlugin {
         presentViewController(appVC: appVC, for: call)
     }
 
+    @objc
+    public func respondToEvent(_ call: CAPPluginCall) {
+        guard let eventName = call.getString(Constants.name.rawValue) else {
+            call.reject("Failed respondToEvent due to a missing value for '\(Constants.name.rawValue)'.")
+            return
+        }
+
+        guard let event = PluginEvent(rawValue: eventName) else {
+            call.reject("Failed respondToEvent due to an unregistered event  - \(eventName).")
+            return
+        }
+
+        switch event {
+        case .tokenInvalid:
+            handleTokenInvalidEvent(with: call)
+        }
+    }
+}
+
+extension CloudSDK {
     private func presentViewController(appVC: AppViewController, for call: CAPPluginCall) {
         dispatchToMainThread(
             self.bridge.viewController.present(appVC, animated: true) {
@@ -120,4 +145,41 @@ public class CloudSDK: CAPPlugin {
             block()
         }
     }
+}
+
+// MARK: - Event handling
+extension CloudSDK {
+    func notify(_ event: PluginEvent, data: [String: Any] = [:]) {
+        notifyListeners(event.rawValue, data: data)
+    }
+
+    func handleTokenInvalidEvent(with call: CAPPluginCall) {
+        guard let token = call.getString(Constants.value.rawValue) else {
+            call.reject("Failed tokenInvalidEvent due to an invalid or missing token value for '\(Constants.value.rawValue)'.")
+            return
+        }
+
+        guard let id = call.getString(Constants.id.rawValue) else {
+            call.reject("Failed tokenInvalidEvent due to an invalid or missing value for '\(Constants.id.rawValue)'.")
+            return
+        }
+
+        let callback = callbacks[id] as? (String) -> Void
+        callback?(token)
+        callbacks[id] = nil
+
+        call.resolve()
+    }
+}
+
+// MARK: - AppKitDelegate
+extension CloudSDK: AppKitDelegate {
+    public func tokenInvalid(completion: @escaping ((String) -> Void)) {
+        let id = UUID().uuidString
+        callbacks[id] = completion
+        notify(.tokenInvalid, data: [Constants.id.rawValue: id])
+    }
+
+    public func didFail(with error: AppKit.AppError) {}
+    public func didReceiveAppDrawers(_ appDrawers: [AppKit.AppDrawer], _ appDatas: [AppKit.AppData]) {}
 }

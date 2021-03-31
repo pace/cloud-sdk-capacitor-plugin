@@ -9,4 +9,5 @@ CAP_PLUGIN(CloudSDK, "CloudSDK",
            CAP_PLUGIN_METHOD(isPoiInRange, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(startApp, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(startFuelingApp, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(respondToEvent, CAPPluginReturnPromise);
 )

@@ -21,6 +21,10 @@ enum Constants: String {
     case radius
     case coordinate
 
+    case id
+    case name
+    case value
+
     case url
 
     case result
