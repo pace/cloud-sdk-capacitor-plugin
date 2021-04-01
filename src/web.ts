@@ -1,5 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
-import { CloudSDKPlugin, Configuration, GasStation } from './definitions';
+import {
+  CloudSDKPlugin,
+  Configuration,
+  GasStation,
+  PresetUrl,
+} from './definitions';
 
 export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
   constructor() {
@@ -13,22 +18,24 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
     throw new Error('This method not is available in web');
   }
 
-  async getNearbyGasStations(
-    _coordinate: [number, number] = [0, 0],
-    _radius: number = 20,
-  ): Promise<{ results: GasStation[] }> {
+  async getNearbyGasStations(_options: {
+    coordinate: [number, number];
+    radius: number;
+  }): Promise<{ results: GasStation[] }> {
     throw new Error('This method not is available in web');
   }
 
-  async isPoiInRange(_poiId: string): Promise<{ result: boolean }> {
+  async isPoiInRange(_options: {
+    poiId: string;
+  }): Promise<{ result: boolean }> {
     throw new Error('This method not is available in web');
   }
 
-  async startApp(_appStartUrl: string): Promise<boolean> {
+  async startApp(_options: { url: string | PresetUrl }): Promise<boolean> {
     throw new Error('This method not is available in web');
   }
 
-  async startFuelingApp(_poiId: string): Promise<boolean> {
+  async startFuelingApp(_options: { poiId: string }): Promise<boolean> {
     throw new Error('This method not is available in web');
   }
 }

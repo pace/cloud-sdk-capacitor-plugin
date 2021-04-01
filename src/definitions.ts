@@ -72,26 +72,26 @@ export interface CloudSDKPlugin {
    * @param coordinate is the coordinate to search from
    * @param radius is the radius to search in
    */
-  getNearbyGasStations(
-    coordinate: [number, number],
-    radius: number,
-  ): Promise<{ results: GasStation[] }>;
+  getNearbyGasStations(options: {
+    coordinate: [number, number];
+    radius: number;
+  }): Promise<{ results: GasStation[] }>;
 
   /**
    * Check if there is a App for the given GasStation Id at the current location
    * @param poiId is the Id of a GasStation
    */
-  isPoiInRange(poiId: string): Promise<{ result: boolean }>;
+  isPoiInRange(options: { poiId: string }): Promise<{ result: boolean }>;
 
   /**
    * Start an App via a url
    * @param url is the appStartUrl from an App, or one of predefined presetUrls
    */
-  startApp(url: string | PresetUrl): Promise<boolean>;
+  startApp(options: { url: string | PresetUrl }): Promise<boolean>;
 
   /**
    * Start an App for a given poiId
    * @param url is the Id of a GasStation
    */
-  startFuelingApp(poiId: string): Promise<boolean>;
+  startFuelingApp(options: { poiId: string }): Promise<boolean>;
 }
