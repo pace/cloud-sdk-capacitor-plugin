@@ -10,6 +10,7 @@
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
 		20C0B05DCFC8E3958A738AF2 /* Pods_PluginTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */; };
 		3B6CA9E726145BE5004D4587 /* PluginEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6CA9E626145BE5004D4587 /* PluginEvent.swift */; };
+		3B74101E26270A6400CF9306 /* Plugin+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B74101D26270A6400CF9306 /* Plugin+Extension.swift */; };
 		3B75A6E5260C7AF100E68CAF /* PluginGasStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B75A6E4260C7AF100E68CAF /* PluginGasStation.swift */; };
 		3B76F1BA260B7548008EA118 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B76F1B9260B7548008EA118 /* Constants.swift */; };
 		3BC5D9A726120D3F00DF3CAE /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC5D9A626120D3F00DF3CAE /* Array+Extension.swift */; };
@@ -34,6 +35,7 @@
 /* Begin PBXFileReference section */
 		3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Plugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B6CA9E626145BE5004D4587 /* PluginEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginEvent.swift; sourceTree = "<group>"; };
+		3B74101D26270A6400CF9306 /* Plugin+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Plugin+Extension.swift"; sourceTree = "<group>"; };
 		3B75A6E4260C7AF100E68CAF /* PluginGasStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginGasStation.swift; sourceTree = "<group>"; };
 		3B76F1B9260B7548008EA118 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3BC5D9A626120D3F00DF3CAE /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 			children = (
 				3B76F1B1260B678A008EA118 /* Helpers */,
 				50E1A94720377CB70090CE1A /* Plugin.swift */,
+				3B74101D26270A6400CF9306 /* Plugin+Extension.swift */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
 				50ADFF8C201F53D600D50D53 /* Info.plist */,
@@ -334,6 +337,7 @@
 			files = (
 				3B75A6E5260C7AF100E68CAF /* PluginGasStation.swift in Sources */,
 				3B6CA9E726145BE5004D4587 /* PluginEvent.swift in Sources */,
+				3B74101E26270A6400CF9306 /* Plugin+Extension.swift in Sources */,
 				3BC5D9A726120D3F00DF3CAE /* Array+Extension.swift in Sources */,
 				50E1A94820377CB70090CE1A /* Plugin.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */,
