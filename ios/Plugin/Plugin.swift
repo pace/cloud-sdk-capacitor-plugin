@@ -61,14 +61,17 @@ public class CloudSDK: CAPPlugin {
             let location = CLLocationCoordinate2D(latitude: lat, longitude: lon)
 
             self?.downloadTask?.cancel()
-            self?.downloadTask = self?.poiKitManager?.fetchPOIs(poisOfType: .gasStation, boundingBox: POIKit.BoundingBox(center: location, radius: radius), forceLoad: true) { [weak self] result in
+            self?.downloadTask = self?.poiKitManager?.fetchPOIs(poisOfType: .gasStation,
+                                                                boundingBox: POIKit.BoundingBox(center: location, radius: radius),
+                                                                forceLoad: true) { [weak self] result in
                 switch result {
                 case .success(let stations):
                     let pluginStations: [PluginGasStation] = stations.compactMap { PluginGasStation(from: $0) }
-                    self?.resolve(call, [Constants.results.rawValue: pluginStations])
+                    let responseData = CAPPluginCall.pluginResultData(for: [Constants.results.rawValue: pluginStations])
+                    self?.resolve(call, responseData)
 
                 case .failure(let error):
-                    self?.reject(call, "Failed getNearbyGasStations with error \(error.localizedDescription)")
+                    self?.reject(call, "Failed getNearbyGasStations with error \(error)")
                 }
             }
         }
