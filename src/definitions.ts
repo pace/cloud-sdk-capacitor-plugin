@@ -49,7 +49,15 @@ export interface GasStation {
   id: string;
   name: string;
   address?: Address;
-  coordinates: [number, number][];
+
+  /**
+   * A set of coordinates, as [lng, lat]
+   */
+  coordinates: [number, number];
+
+  /**
+   * Indicates if the gasStations supports Connected Fueling
+   */
   isConnectedFuelingAvailable: boolean;
   lastUpdated: Date;
 }
@@ -69,8 +77,8 @@ export interface CloudSDKPlugin {
 
   /**
    * Returns a list of gasStations based on a given coordinate
-   * @param coordinate is the coordinate to search from
-   * @param radius is the radius to search in
+   * @param coordinate is the coordinate to search from, as [lng, lat]
+   * @param radius is the radius to search in, in meters
    */
   getNearbyGasStations(options: {
     coordinate: [number, number];
