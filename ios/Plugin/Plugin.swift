@@ -85,8 +85,10 @@ public class CloudSDK: CAPPlugin {
                 return
             }
 
-            AppKit.shared.isPoiInRange(id: poiId) { result in
-                self?.resolve(call, [Constants.result.rawValue: result])
+            self?.dispatchToMainThread {
+                AppKit.shared.isPoiInRange(id: poiId) { result in
+                    self?.resolve(call, [Constants.result.rawValue: result])
+                }
             }
         }
     }
