@@ -25,6 +25,9 @@ enum Constants: String {
     case name
     case value
 
+    case reason
+    case oldToken
+
     case url
 
     case result
