@@ -10,7 +10,7 @@ PODS:
   - CapacitorCordova (2.4.7)
   - OneTimePassword (3.2.0):
     - Base32 (~> 1.1.2)
-  - PACECloudSDK (5.0.1):
+  - PACECloudSDK (6.0.0):
     - AppAuth
     - OneTimePassword (~> 3.2.0)
     - SwiftProtobuf (~> 1.15.0)
@@ -39,7 +39,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   PACECloudSDK:
-    :commit: ee76dda7e46ec96152625491c240cc18ea51ba95
+    :commit: c8d27cf896eb22a4d18460398ac1ba8df230f377
     :git: https://github.com/pace/cloud-sdk-ios
 
 SPEC CHECKSUMS:
@@ -48,7 +48,7 @@ SPEC CHECKSUMS:
   Capacitor: 4cd7b342d5a15b1f6f333d687358953afd7b2d8b
   CapacitorCordova: 2c9d6e28d9d86c4da087fa2c3537c1841954bb12
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
-  PACECloudSDK: 043a072a54661b3c793c1be58b56e3ab109d5a89
+  PACECloudSDK: 9f0e958baa5c0be880f8d8d2d1da26ef093d1a56
   SwiftProtobuf: 3320217e9d8fb75f36b40282e78c482640fd75dd
 
 PODFILE CHECKSUM: 1df86406ecd89969fa5f7ee79f33c7a25b91c178

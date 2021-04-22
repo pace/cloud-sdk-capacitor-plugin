@@ -213,11 +213,19 @@ extension CloudSDK {
 
 // MARK: - AppKitDelegate
 extension CloudSDK: AppKitDelegate {
-    public func tokenInvalid(completion: @escaping ((String) -> Void)) {
+    public func tokenInvalid(reason: AppKit.InvalidTokenReason, oldToken: String?, completion: @escaping ((String) -> Void)) {
         pluginQueue.async { [weak self] in
             let id = UUID().uuidString
             self?.callbacks[id] = completion
-            self?.notify(.tokenInvalid, data: [Constants.id.rawValue: id])
+
+            var data: [String: Any] = [Constants.id.rawValue: id,
+                                       Constants.reason.rawValue: reason.rawValue]
+
+            if let oldToken = oldToken {
+                data[Constants.oldToken.rawValue] = oldToken
+            }
+
+            self?.notify(.tokenInvalid, data: data)
         }
     }
 
