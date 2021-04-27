@@ -9,7 +9,7 @@ end
 
 target 'Plugin' do
   capacitor_pods
-  pod 'PACECloudSDK', :git => 'https://github.com/pace/cloud-sdk-ios', :branch => 'master'
+  pod 'PACECloudSDK', :git => 'https://github.com/pace/cloud-sdk-ios', :tag => '6.0.0'
 end
 
 target 'PluginTests' do
