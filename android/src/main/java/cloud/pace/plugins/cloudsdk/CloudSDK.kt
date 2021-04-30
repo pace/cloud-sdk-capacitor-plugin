@@ -183,6 +183,12 @@ class CloudSDK : Plugin(), AppCallback {
         call.resolve()
     }
 
+    override fun getConfig(key: String, config: (String?) -> Unit) {
+    }
+
+    override fun logEvent(key: String, parameters: Map<String, Any>) {
+    }
+
 
     override fun onClose() {
     }
@@ -206,6 +212,9 @@ class CloudSDK : Plugin(), AppCallback {
         val id = UUID.randomUUID().toString()
         callbacks[id] = onResult
         notify(PluginEvent.TOKEN_INVALID, mapOf(ID to id))
+    }
+
+    override fun setUserProperty(key: String, value: String, update: Boolean) {
     }
 
     companion object {

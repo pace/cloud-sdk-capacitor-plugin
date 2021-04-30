@@ -44,9 +44,8 @@ android {
 
 repositories {
     google()
-    jcenter()
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    jcenter()
 }
 
 
@@ -58,5 +57,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.pace:cloud-sdk-android:master-SNAPSHOT'
+    implementation "cloud.pace:sdk:7.1.0"
 }
