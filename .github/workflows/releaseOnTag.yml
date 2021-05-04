@@ -3,19 +3,9 @@ name: Release plugin on tag
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - '*'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: git fetch origin master
-    - run: npm version ${GITHUB_REF#refs/*/}
-    - run: git add .
-    - run: git commit -m "Bump version to ${GITHUB_REF#refs/*/}"
-    - run: git push origin HEAD:master
-  
   publish:
     runs-on: ubuntu-latest
     steps:
