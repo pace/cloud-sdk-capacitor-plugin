@@ -96,10 +96,10 @@ class CloudSDK : Plugin(), AppCallback {
 
     @PluginMethod
     fun getNearbyGasStations(call: PluginCall) {
-        val userLocation = call.getArray(USER_LOCATION)
+        val coordinate = call.getArray(COORDINATE)
         val radius = call.getDouble(RADIUS)
 
-        if (userLocation == null || userLocation.length() != 2) {
+        if (coordinate == null || coordinate.length() != 2) {
             call.reject("Failed getNearbyGasStations: User location null or invalid")
             return
         }
@@ -108,7 +108,7 @@ class CloudSDK : Plugin(), AppCallback {
             return
         }
 
-        val visibleRegion = LatLngBounds(LatLng(userLocation.getDouble(1), userLocation.getDouble(0)), radius).toVisibleRegion()
+        val visibleRegion = LatLngBounds(LatLng(coordinate.getDouble(1), coordinate.getDouble(0)), radius).toVisibleRegion()
         POIKit.observe(visibleRegion) {
             when (it) {
                 is Success -> {
@@ -231,7 +231,7 @@ class CloudSDK : Plugin(), AppCallback {
         const val URL = "url"
         const val RESULT = "result"
         const val RESULTS = "results"
-        const val USER_LOCATION = "user_location"
+        const val COORDINATE = "coordinate"
         const val RADIUS = "radius"
 
         const val ID = "id"
