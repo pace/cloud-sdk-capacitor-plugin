@@ -109,31 +109,33 @@ class CloudSDK : Plugin(), AppCallback {
         }
 
         val visibleRegion = LatLngBounds(LatLng(coordinate.getDouble(1), coordinate.getDouble(0)), radius).toVisibleRegion()
-        POIKit.observe(visibleRegion) {
-            when (it) {
-                is Success -> {
-                    val result = mutableListOf<PluginCofuStation>()
-                    it.result.filterIsInstance(GasStation::class.java).forEach {
-                        val address = Address(it.address?.countryCode, it.address?.city, it.address?.postalCode, it.address?.street, it.address?.houseNumber)
-                        result.add(
-                                PluginCofuStation(
-                                        it.id,
-                                        it.name,
-                                        address,
-                                        listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
-                                        it.isConnectedFuelingAvailable,
-                                        it.updatedAt
-                                )
-                        )
+        onMainThread {
+            POIKit.observe(visibleRegion) {
+                when (it) {
+                    is Success -> {
+                        val result = mutableListOf<PluginCofuStation>()
+                        it.result.filterIsInstance(GasStation::class.java).forEach {
+                            val address = Address(it.address?.countryCode, it.address?.city, it.address?.postalCode, it.address?.street, it.address?.houseNumber)
+                            result.add(
+                                    PluginCofuStation(
+                                            it.id,
+                                            it.name,
+                                            address,
+                                            listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
+                                            it.isConnectedFuelingAvailable,
+                                            it.updatedAt
+                                    )
+                            )
+                        }
+
+                        val response = JSObject()
+                        response.put(RESULTS, result)
+                        dispatchOnMainThread { call.resolve(response) }
                     }
 
-                    val response = JSObject()
-                    response.put(RESULTS, result)
-                    dispatchOnMainThread { call.resolve(response) }
-                }
-
-                is Failure -> {
-                    dispatchOnMainThread { call.reject("Failed getNearbyGasStations: ${it.throwable.localizedMessage}") }
+                    is Failure -> {
+                        dispatchOnMainThread { call.reject("Failed getNearbyGasStations: ${it.throwable.localizedMessage}") }
+                    }
                 }
             }
         }
