@@ -16,6 +16,7 @@ import cloud.pace.sdk.poikit.utils.toVisibleRegion
 import cloud.pace.sdk.utils.*
 import com.getcapacitor.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import java.util.*
 
 @NativePlugin
@@ -132,7 +133,7 @@ class CloudSDK : Plugin(), AppCallback {
                         }
 
                         val response = JSObject()
-                        response.put(RESULTS, result)
+                        response.put(RESULTS, Gson().toJson(result))
                         dispatchOnMainThread { call.resolve(response) }
                     }
 
