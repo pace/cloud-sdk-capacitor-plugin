@@ -10,6 +10,7 @@ import cloud.pace.sdk.appkit.model.App
 import cloud.pace.sdk.appkit.model.InvalidTokenReason
 import cloud.pace.sdk.poikit.POIKit
 import cloud.pace.sdk.poikit.poi.GasStation
+import cloud.pace.sdk.poikit.poi.VisibleRegionNotificationToken
 import cloud.pace.sdk.poikit.utils.LatLngBounds
 import cloud.pace.sdk.poikit.utils.toVisibleRegion
 import cloud.pace.sdk.utils.*
@@ -20,6 +21,7 @@ import java.util.*
 @NativePlugin
 class CloudSDK : Plugin(), AppCallback {
     private var callbacks: MutableMap<String, Any> = mutableMapOf()
+    private var poiObserver: VisibleRegionNotificationToken? = null
 
     @PluginMethod
     fun setup(call: PluginCall) {
@@ -110,7 +112,8 @@ class CloudSDK : Plugin(), AppCallback {
 
         val visibleRegion = LatLngBounds(LatLng(coordinate.getDouble(1), coordinate.getDouble(0)), radius).toVisibleRegion()
         onMainThread {
-            POIKit.observe(visibleRegion) {
+            poiObserver?.invalidate()
+            poiObserver = POIKit.observe(visibleRegion) {
                 when (it) {
                     is Success -> {
                         val result = mutableListOf<PluginCofuStation>()
@@ -138,6 +141,7 @@ class CloudSDK : Plugin(), AppCallback {
                     }
                 }
             }
+            poiObserver?.refresh()
         }
     }
 
