@@ -133,7 +133,7 @@ class CloudSDK : Plugin(), AppCallback {
                         }
 
                         val response = JSObject()
-                        response.put(RESULTS, Gson().toJson(result))
+                        response.put(RESULTS, Gson().toJsonTree(result).asJsonArray)
                         dispatchOnMainThread { call.resolve(response) }
                     }
 
