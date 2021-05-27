@@ -2,8 +2,6 @@ package cloud.pace.plugins.cloudsdk
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Handler
-import android.os.Looper
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
 import cloud.pace.sdk.appkit.AppKit
@@ -62,11 +60,11 @@ class CloudSDK : Plugin(), AppCallback {
 
     @PluginMethod
     fun isPoiInRange(call: PluginCall) {
-        Handler(Looper.getMainLooper()).post {
+        onMainThread {
             val poiId = call.getString(POI_ID)
             if (poiId == null) {
                 call.reject("Failed isPoiInRange: Missing PoiID")
-                return@post
+                return@onMainThread
             }
 
             AppKit.isPoiInRange(poiId) {
