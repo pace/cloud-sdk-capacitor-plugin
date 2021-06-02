@@ -16,6 +16,48 @@ export enum Environment {
   SANDBOX = 'sandbox',
 }
 
+export enum OpeningHourDay {
+  MONDAY = 'monday',
+  TUESDAY = 'tuesday',
+  WEDNESDAY = 'wednesday',
+  THURSDAY = 'thursday',
+  FRIDAY = 'friday',
+  SATURDAY = 'saturday',
+  SUNDAY = 'sunday',
+}
+
+export enum FuelCurrency {
+  EUR = 'EUR',
+}
+
+export enum FuelType {
+  RON98 = 'ron98',
+  RON98E5 = 'ron98e5',
+  RON95E10 = 'ron95e10',
+  DIESEL = 'diesel',
+  E85 = 'e85',
+  RON91 = 'ron91',
+  RON95E5 = 'ron95e5',
+  RON100 = 'ron100',
+  DIESELGTL = 'dieselGtl',
+  DIESELB7 = 'dieselB7',
+  DIESELPREMIUM = 'dieselPremium',
+  LPG = 'lpg',
+  CNG = 'cng',
+  LNG = 'lng',
+  H2 = 'h2',
+  TRUCKDIESEL = 'truckDiesel',
+  ADBLUE = 'adBlue',
+  TRUCKADBLUE = 'truckAdBlue',
+  TRUCKDIESELPREMIUM = 'truckDieselPremium',
+  TRUCKLPG = 'truckLpg',
+  HEATINGOIL = 'heatingOil',
+}
+
+export enum FuelPriceUnit {
+  LITRE = 'L',
+}
+
 export interface Configuration {
   /**
    * Use this property to provide the plugin with your PACE SDK API Key
@@ -45,6 +87,21 @@ export interface Address {
   houseNumber?: string;
 }
 
+export interface OpeningHour {
+  day: OpeningHourDay;
+  hours: [number, number][];
+}
+
+export interface FuelPrice {
+  fuelType: FuelType;
+  productName: string;
+  price: number;
+  priceFormatting: string;
+  unit: FuelPriceUnit;
+  currency: FuelCurrency;
+  updated: number;
+}
+
 export interface GasStation {
   id: string;
   name: string;
@@ -54,6 +111,16 @@ export interface GasStation {
    * A set of coordinates, as [lng, lat]
    */
   coordinates: [number, number];
+
+  /**
+   * The opening hours for the Gas Station
+   */
+  openingHours: OpeningHour[];
+
+  /**
+   * The available fuel prices
+   */
+  fuelPrices: FuelPrice[];
 
   /**
    * Indicates if the gasStations supports Connected Fueling
