@@ -9,8 +9,7 @@ import cloud.pace.sdk.appkit.communication.AppCallback
 import cloud.pace.sdk.appkit.model.App
 import cloud.pace.sdk.appkit.model.InvalidTokenReason
 import cloud.pace.sdk.poikit.POIKit
-import cloud.pace.sdk.poikit.poi.GasStation
-import cloud.pace.sdk.poikit.poi.VisibleRegionNotificationToken
+import cloud.pace.sdk.poikit.poi.*
 import cloud.pace.sdk.poikit.utils.LatLngBounds
 import cloud.pace.sdk.poikit.utils.toVisibleRegion
 import cloud.pace.sdk.utils.*
@@ -119,17 +118,20 @@ class CloudSDK : Plugin(), AppCallback {
             poiObserver = POIKit.observe(visibleRegion) {
                 when (it) {
                     is Success -> {
-                        val result = mutableListOf<PluginCofuStation>()
+                        val result = mutableListOf<PluginGasStation>()
                         it.result.filterIsInstance(GasStation::class.java).forEach {
                             val address = Address(it.address?.countryCode, it.address?.city, it.address?.postalCode, it.address?.street, it.address?.houseNumber)
+
                             result.add(
-                                    PluginCofuStation(
+                                    PluginGasStation(
                                             it.id,
                                             it.name,
                                             address,
                                             listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
                                             it.isConnectedFuelingAvailable,
-                                            it.updatedAt
+                                            it.updatedAt,
+                                            it.prices.map { price -> FuelPrice(price.type.value, price.name, price.price, "L", it.currency, it.priceFormat, it.updatedAt?.time?.div(1000)) },
+                                            parseOpeningHours(it.openingHours)
                                     )
                             )
                         }
@@ -146,6 +148,27 @@ class CloudSDK : Plugin(), AppCallback {
             }
             poiObserver?.refresh()
         }
+    }
+
+    private fun parseOpeningHours(poiOpeningHours: List<OpeningHours>?): List<OpeningHour> {
+        val result = mutableListOf<OpeningHour>()
+
+        enumValues<Day>().forEach { day ->
+            val daysOpeningHours = mutableListOf<List<String>>()
+            poiOpeningHours?.forEach {
+                if (it.rule == OpeningRule.OPEN && it.days.contains(day)) {
+                    it.hours.firstOrNull()?.let { hour ->
+                        daysOpeningHours.add(listOf(hour.from, hour.to))
+                    }
+                }
+            }
+
+            if (daysOpeningHours.isNotEmpty()) {
+                result.add(OpeningHour(day.name, daysOpeningHours))
+            }
+        }
+
+        return result
     }
 
     @PluginMethod
@@ -220,7 +243,13 @@ class CloudSDK : Plugin(), AppCallback {
     override fun onTokenInvalid(reason: InvalidTokenReason, oldToken: String?, onResult: (String) -> Unit) {
         val id = UUID.randomUUID().toString()
         callbacks[id] = onResult
-        notify(PluginEvent.TOKEN_INVALID, mapOf(ID to id))
+
+        val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
+        oldToken?.let {
+            data.put(OLD_TOKEN, it)
+        }
+
+        notify(PluginEvent.TOKEN_INVALID, data)
     }
 
     override fun setUserProperty(key: String, value: String, update: Boolean) {
@@ -246,5 +275,8 @@ class CloudSDK : Plugin(), AppCallback {
         const val ID = "id"
         const val NAME = "name"
         const val VALUE = "value"
+
+        const val REASON = "reason"
+        const val OLD_TOKEN = "oldToken"
     }
 }
