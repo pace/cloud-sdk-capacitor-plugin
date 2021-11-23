@@ -34,10 +34,11 @@ public class CloudSDK: CAPPlugin {
                                                                   authenticationMode: authenticationMode,
                                                                   environment: environment)
 
+            PACECloudSDK.shared.redirectScheme = "pace.VueStarterExampleApp"
             PACECloudSDK.shared.setup(with: configuration)
             self?.poiKitManager = POIKit.POIKitManager(environment: environment)
 
-            AppKit.shared.delegate = self
+            AppKit.delegate = self
 
             self?.resolve(call)
         }
@@ -61,8 +62,7 @@ public class CloudSDK: CAPPlugin {
             let location = CLLocationCoordinate2D(latitude: lat, longitude: lon)
 
             self?.downloadTask?.cancel()
-            self?.downloadTask = self?.poiKitManager?.fetchPOIs(poisOfType: .gasStation,
-                                                                boundingBox: POIKit.BoundingBox(center: location, radius: radius),
+            self?.downloadTask = self?.poiKitManager?.fetchPOIs(boundingBox: POIKit.BoundingBox(center: location, radius: radius),
                                                                 forceLoad: true) { [weak self] result in
                 switch result {
                 case .success(let stations):
@@ -85,8 +85,8 @@ public class CloudSDK: CAPPlugin {
                 return
             }
 
-            self?.dispatchToMainThread {
-                AppKit.shared.isPoiInRange(id: poiId) { result in
+            POIKit.isPoiInRange(id: poiId) { result in
+                self?.dispatchToMainThread {
                     self?.resolve(call, [Constants.result.rawValue: result])
                 }
             }
@@ -105,12 +105,12 @@ public class CloudSDK: CAPPlugin {
                 let appVC: AppViewController
 
                 if let presetUrl = PACECloudSDK.URL(rawValue: inputString) {
-                    appVC = AppKit.shared.appViewController(presetUrl: presetUrl)
+                    appVC = AppKit.appViewController(presetUrl: presetUrl)
                 } else if URL(string: inputString) != nil {
                     // Check if the string is a valid URL before passing it to AppKit
                     // because the eventually resulting error callbacks
                     // cannot be used in the plugin context
-                    appVC = AppKit.shared.appViewController(appUrl: inputString)
+                    appVC = AppKit.appViewController(appUrl: inputString)
                 } else {
                     self?.reject(call, "Failed startApp due to an invalid value for '\(Constants.url.rawValue)'")
                     return
@@ -127,7 +127,7 @@ public class CloudSDK: CAPPlugin {
             let poiId = call.getString(Constants.poiId.rawValue)
 
             self?.dispatchToMainThread {
-                let appVC = AppKit.shared.appViewController(presetUrl: .fueling(id: poiId))
+                let appVC = AppKit.appViewController(presetUrl: .fueling(id: poiId))
                 self?.presentViewController(appVC: appVC, for: call)
             }
         }
@@ -205,8 +205,9 @@ extension CloudSDK {
             return
         }
 
-        let callback = callbacks[id] as? (String) -> Void
-        callback?(token)
+        let callback = callbacks[id] as? (API.Communication.GetAccessTokenResponse) -> Void
+        let tokenResponse: API.Communication.GetAccessTokenResponse = .init(accessToken: token, isInitialToken: false)
+        callback?(tokenResponse)
         callbacks[id] = nil
 
         resolve(call)
@@ -215,7 +216,7 @@ extension CloudSDK {
 
 // MARK: - AppKitDelegate
 extension CloudSDK: AppKitDelegate {
-    public func tokenInvalid(reason: AppKit.InvalidTokenReason, oldToken: String?, completion: @escaping ((String) -> Void)) {
+    public func getAccessToken(reason: AppKit.GetAccessTokenReason, oldToken: String?, completion: @escaping ((API.Communication.GetAccessTokenResponse) -> Void)) {
         pluginQueue.async { [weak self] in
             let id = UUID().uuidString
             self?.callbacks[id] = completion
