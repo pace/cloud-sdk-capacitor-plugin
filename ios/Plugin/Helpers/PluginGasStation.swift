@@ -113,11 +113,11 @@ extension PluginGasStation {
                   let updated = attributes.updatedAt
             else { return nil }
 
-            self.fuelType = fuelType.rawValue
+            self.fuelType = fuelType
             self.productName = productName
             self.price = price
             self.unit = "L"
-            self.currency = currency.rawValue
+            self.currency = currency
             self.priceFormatting = format
             self.updated = updated.timeIntervalSince1970
         }
