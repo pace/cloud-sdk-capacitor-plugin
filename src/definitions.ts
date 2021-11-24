@@ -155,8 +155,12 @@ export interface CloudSDKPlugin {
   /**
    * Check if there is a App for the given GasStation Id at the current location
    * @param poiId is the Id of a GasStation
+   * @param coordinate is the location to check if the gas station is in range of, as [lng, lat]
    */
-  isPoiInRange(options: { poiId: string }): Promise<{ result: boolean }>;
+  isPoiInRange(options: { 
+    poiId: string;
+    coordinate: [number, number];
+  }): Promise<{ result: boolean }>;
 
   /**
    * Start an App via a url
