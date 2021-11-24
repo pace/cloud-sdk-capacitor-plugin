@@ -85,7 +85,17 @@ public class CloudSDK: CAPPlugin {
                 return
             }
 
-            POIKit.isPoiInRange(id: poiId) { result in
+            guard let coordinate = call.getArray(Constants.coordinate.rawValue, Double.self),
+                  let lon = coordinate[safe: 0],
+                  let lat = coordinate[safe: 1]
+            else {
+                  self?.reject(call, "Failed isPoiInRange due to a missing value for '\(Constants.coordinate.rawValue)'.")
+                  return
+            }
+
+            let location = CLLocation(latitude: lat, longitude: lon)
+
+            POIKit.isPoiInRange(id: poiId, at: location) { result in
                 self?.dispatchToMainThread {
                     self?.resolve(call, [Constants.result.rawValue: result])
                 }
