@@ -11,7 +11,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -38,7 +38,7 @@ android {
         abortOnError false
     }
     kotlinOptions{
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -57,5 +57,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "cloud.pace:sdk:7.4.0"
+    implementation "cloud.pace:sdk:11.1.0"
 }

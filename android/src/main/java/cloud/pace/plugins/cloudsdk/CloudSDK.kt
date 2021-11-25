@@ -2,12 +2,15 @@ package cloud.pace.plugins.cloudsdk
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.location.Location
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
 import cloud.pace.sdk.appkit.AppKit
 import cloud.pace.sdk.appkit.communication.AppCallback
+import cloud.pace.sdk.appkit.communication.GetAccessTokenResponse
+import cloud.pace.sdk.appkit.communication.InvalidTokenReason
+import cloud.pace.sdk.appkit.communication.LogoutResponse
 import cloud.pace.sdk.appkit.model.App
-import cloud.pace.sdk.appkit.model.InvalidTokenReason
 import cloud.pace.sdk.poikit.POIKit
 import cloud.pace.sdk.poikit.poi.*
 import cloud.pace.sdk.poikit.utils.LatLngBounds
@@ -42,15 +45,16 @@ class CloudSDK : Plugin(), AppCallback {
         }
 
         val environment = searchEnum(Environment::class.java, callEnvironment)
-                ?: Environment.PRODUCTION
+            ?: Environment.PRODUCTION
 
         val configuration = Configuration(
-                clientAppName = CLIENT_APP_NAME,
-                clientAppVersion = CLIENT_APP_VERSION,
-                clientAppBuild = CLIENT_APP_BUILD,
-                apiKey = apiKey,
-                authenticationMode = authenticationMode,
-                environment = environment
+            clientAppName = CLIENT_APP_NAME,
+            clientAppVersion = CLIENT_APP_VERSION,
+            clientAppBuild = CLIENT_APP_BUILD,
+            apiKey = apiKey,
+            authenticationMode = authenticationMode,
+            environment = environment,
+            oidConfiguration = null
         )
 
         PACECloudSDK.setup(context, configuration)
@@ -60,17 +64,23 @@ class CloudSDK : Plugin(), AppCallback {
     @PluginMethod
     fun isPoiInRange(call: PluginCall) {
         onMainThread {
+            val coordinate = call.getArray(COORDINATE)
+            if (coordinate == null || coordinate.length() != 2) {
+                call.reject("Failed isPoiInRange: User location null or invalid")
+                return@onMainThread
+            }
             val poiId = call.getString(POI_ID)
             if (poiId == null) {
                 call.reject("Failed isPoiInRange: Missing PoiID")
                 return@onMainThread
             }
+            val location = Location("location")
+            location.latitude = coordinate.getDouble(1)
+            location.longitude = coordinate.getDouble(0)
 
-            AppKit.isPoiInRange(poiId) {
-                val response = JSObject()
-                response.put(RESULT, it)
-                call.resolve(response)
-            }
+            val response = JSObject()
+            response.put(RESULT, POIKit.isPoiInRange(poiId, location))
+            call.resolve(response)
         }
     }
 
@@ -112,7 +122,10 @@ class CloudSDK : Plugin(), AppCallback {
             return
         }
 
-        val visibleRegion = LatLngBounds(LatLng(coordinate.getDouble(1), coordinate.getDouble(0)), radius).toVisibleRegion()
+        val visibleRegion = LatLngBounds(
+            LatLng(coordinate.getDouble(1), coordinate.getDouble(0)),
+            radius
+        ).toVisibleRegion()
         onMainThread {
             poiObserver?.invalidate()
             poiObserver = POIKit.observe(visibleRegion) {
@@ -120,19 +133,35 @@ class CloudSDK : Plugin(), AppCallback {
                     is Success -> {
                         val result = mutableListOf<PluginGasStation>()
                         it.result.filterIsInstance(GasStation::class.java).forEach {
-                            val address = Address(it.address?.countryCode, it.address?.city, it.address?.postalCode, it.address?.street, it.address?.houseNumber)
+                            val address = Address(
+                                it.address?.countryCode,
+                                it.address?.city,
+                                it.address?.postalCode,
+                                it.address?.street,
+                                it.address?.houseNumber
+                            )
 
                             result.add(
-                                    PluginGasStation(
-                                            it.id,
-                                            it.name,
-                                            address,
-                                            listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
-                                            it.isConnectedFuelingAvailable,
-                                            it.updatedAt,
-                                            it.prices.map { price -> FuelPrice(price.type.value, price.name, price.price, "L", it.currency, it.priceFormat, it.updatedAt?.time?.div(1000)) },
-                                            parseOpeningHours(it.openingHours)
-                                    )
+                                PluginGasStation(
+                                    it.id,
+                                    it.name,
+                                    address,
+                                    listOf(it.longitude ?: 0.0, it.latitude ?: 0.0),
+                                    it.isConnectedFuelingAvailable,
+                                    it.updatedAt,
+                                    it.prices.map { price ->
+                                        FuelPrice(
+                                            price.type.value,
+                                            price.name,
+                                            price.price,
+                                            "L",
+                                            it.currency,
+                                            it.priceFormat,
+                                            it.updatedAt?.time?.div(1000)
+                                        )
+                                    },
+                                    parseOpeningHours(it.openingHours)
+                                )
                             )
                         }
 
@@ -215,12 +244,36 @@ class CloudSDK : Plugin(), AppCallback {
         call.resolve()
     }
 
+    override fun getAccessToken(
+        reason: InvalidTokenReason,
+        oldToken: String?,
+        onResult: (GetAccessTokenResponse) -> Unit
+    ) {
+        val id = UUID.randomUUID().toString()
+        callbacks[id] = onResult
+
+        val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
+        oldToken?.let {
+            data.put(OLD_TOKEN, it)
+        }
+
+        notify(PluginEvent.TOKEN_INVALID, data)
+    }
+
     override fun getConfig(key: String, config: (String?) -> Unit) {
+    }
+
+    override fun isAppRedirectAllowed(app: String, isAllowed: (Boolean) -> Unit) {
+    }
+
+    override fun isRemoteConfigAvailable(isAvailable: (Boolean) -> Unit) {
+    }
+
+    override fun isSignedIn(isSignedIn: (Boolean) -> Unit) {
     }
 
     override fun logEvent(key: String, parameters: Map<String, Any>) {
     }
-
 
     override fun onClose() {
     }
@@ -234,22 +287,22 @@ class CloudSDK : Plugin(), AppCallback {
     override fun onImageDataReceived(bitmap: Bitmap) {
     }
 
+    override fun onLogin(context: Context, result: Completion<String?>) {
+    }
+
+    override fun onLogout(onResult: (LogoutResponse) -> Unit) {
+    }
+
     override fun onOpen(app: App?) {
     }
 
     override fun onOpenInNewTab(url: String) {
     }
 
-    override fun onTokenInvalid(reason: InvalidTokenReason, oldToken: String?, onResult: (String) -> Unit) {
-        val id = UUID.randomUUID().toString()
-        callbacks[id] = onResult
+    override fun onSessionRenewalFailed(throwable: Throwable?, onResult: (String?) -> Unit) {
+    }
 
-        val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
-        oldToken?.let {
-            data.put(OLD_TOKEN, it)
-        }
-
-        notify(PluginEvent.TOKEN_INVALID, data)
+    override fun onShareTextReceived(text: String, title: String) {
     }
 
     override fun setUserProperty(key: String, value: String, update: Boolean) {
