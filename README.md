@@ -13,7 +13,16 @@ npm run build
 
 ## Android
 ### Updating the PACECloudSDK
+1. Open the `/android` folder via Android Studio
+2. Adjust the line `implementation "cloud.pace:sdk:$version"` with the desired version in the project level `build.gradle`
+3. Click on `Sync now` to fetch the new version
+
 ### Making Code Changes
+Head over to `/android/src/main/java/cloud/pace/plugins/cloudsdk` folder which contains all neccessary `.kt` files. To start the project in Android Studio, open the `/android` folder via Android Studio, all necessary files can be found in `/java/cloud.pace.plugins.cloudsdk`
+
+Android Studio
+
+<img width="203" alt="Screenshot 2021-11-24 at 14 36 22" src="https://user-images.githubusercontent.com/38315701/143464138-91917b80-bb53-4140-812d-36ed683bd072.png">
 
 ## iOS
 ### Updating the PACECloudSDK
