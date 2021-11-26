@@ -6,10 +6,7 @@ import android.location.Location
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
 import cloud.pace.sdk.appkit.AppKit
-import cloud.pace.sdk.appkit.communication.AppCallback
-import cloud.pace.sdk.appkit.communication.GetAccessTokenResponse
-import cloud.pace.sdk.appkit.communication.InvalidTokenReason
-import cloud.pace.sdk.appkit.communication.LogoutResponse
+import cloud.pace.sdk.appkit.communication.*
 import cloud.pace.sdk.appkit.model.App
 import cloud.pace.sdk.poikit.POIKit
 import cloud.pace.sdk.poikit.poi.*
@@ -22,9 +19,26 @@ import com.google.gson.Gson
 import java.util.*
 
 @NativePlugin
-class CloudSDK : Plugin(), AppCallback {
+class CloudSDK : Plugin() {
     private var callbacks: MutableMap<String, Any> = mutableMapOf()
     private var poiObserver: VisibleRegionNotificationToken? = null
+    private val defaultCallback = object : AppCallbackImpl() {
+        override fun getAccessToken(
+            reason: InvalidTokenReason,
+            oldToken: String?,
+            onResult: (GetAccessTokenResponse) -> Unit
+        ) {
+            val id = UUID.randomUUID().toString()
+            callbacks[id] = onResult
+
+            val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
+            oldToken?.let {
+                data.put(OLD_TOKEN, it)
+            }
+
+            notify(PluginEvent.TOKEN_INVALID, data)
+        }
+    }
 
     @PluginMethod
     fun setup(call: PluginCall) {
@@ -39,7 +53,7 @@ class CloudSDK : Plugin(), AppCallback {
         val callEnvironment = call.getString(ENVIRONMENT) ?: PRODUCTION
 
         val authenticationMode = try {
-            AuthenticationMode.valueOf(callAuthenticationMode)
+            AuthenticationMode.valueOf(callAuthenticationMode.toUpperCase(Locale.getDefault()))
         } catch (e: Exception) {
             AuthenticationMode.WEB
         }
@@ -92,7 +106,8 @@ class CloudSDK : Plugin(), AppCallback {
             return
         }
 
-        AppKit.openAppActivity(context, inputString)
+        AppKit.openAppActivity(context, inputString, callback = defaultCallback)
+
         call.resolve()
     }
 
@@ -104,7 +119,7 @@ class CloudSDK : Plugin(), AppCallback {
             return
         }
 
-        AppKit.openFuelingApp(context, POI_ID)
+        AppKit.openFuelingApp(context, POI_ID, callback = defaultCallback)
         call.resolve()
     }
 
@@ -242,70 +257,6 @@ class CloudSDK : Plugin(), AppCallback {
         callback?.invoke(token)
         callbacks[id] = Unit
         call.resolve()
-    }
-
-    override fun getAccessToken(
-        reason: InvalidTokenReason,
-        oldToken: String?,
-        onResult: (GetAccessTokenResponse) -> Unit
-    ) {
-        val id = UUID.randomUUID().toString()
-        callbacks[id] = onResult
-
-        val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
-        oldToken?.let {
-            data.put(OLD_TOKEN, it)
-        }
-
-        notify(PluginEvent.TOKEN_INVALID, data)
-    }
-
-    override fun getConfig(key: String, config: (String?) -> Unit) {
-    }
-
-    override fun isAppRedirectAllowed(app: String, isAllowed: (Boolean) -> Unit) {
-    }
-
-    override fun isRemoteConfigAvailable(isAvailable: (Boolean) -> Unit) {
-    }
-
-    override fun isSignedIn(isSignedIn: (Boolean) -> Unit) {
-    }
-
-    override fun logEvent(key: String, parameters: Map<String, Any>) {
-    }
-
-    override fun onClose() {
-    }
-
-    override fun onCustomSchemeError(context: Context?, scheme: String) {
-    }
-
-    override fun onDisable(host: String) {
-    }
-
-    override fun onImageDataReceived(bitmap: Bitmap) {
-    }
-
-    override fun onLogin(context: Context, result: Completion<String?>) {
-    }
-
-    override fun onLogout(onResult: (LogoutResponse) -> Unit) {
-    }
-
-    override fun onOpen(app: App?) {
-    }
-
-    override fun onOpenInNewTab(url: String) {
-    }
-
-    override fun onSessionRenewalFailed(throwable: Throwable?, onResult: (String?) -> Unit) {
-    }
-
-    override fun onShareTextReceived(text: String, title: String) {
-    }
-
-    override fun setUserProperty(key: String, value: String, update: Boolean) {
     }
 
     companion object {
