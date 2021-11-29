@@ -1,13 +1,10 @@
 package cloud.pace.plugins.cloudsdk
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.location.Location
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
 import cloud.pace.sdk.appkit.AppKit
 import cloud.pace.sdk.appkit.communication.*
-import cloud.pace.sdk.appkit.model.App
 import cloud.pace.sdk.poikit.POIKit
 import cloud.pace.sdk.poikit.poi.*
 import cloud.pace.sdk.poikit.utils.LatLngBounds
@@ -52,11 +49,7 @@ class CloudSDK : Plugin() {
         val callAuthenticationMode = call.getString(AUTHENTICATION_MODE) ?: WEB
         val callEnvironment = call.getString(ENVIRONMENT) ?: PRODUCTION
 
-        val authenticationMode = try {
-            AuthenticationMode.valueOf(callAuthenticationMode.toUpperCase(Locale.getDefault()))
-        } catch (e: Exception) {
-            AuthenticationMode.WEB
-        }
+        val authenticationMode = if (callAuthenticationMode.equals("native", true)) AuthenticationMode.NATIVE else AuthenticationMode.WEB
 
         val environment = searchEnum(Environment::class.java, callEnvironment)
             ?: Environment.PRODUCTION
