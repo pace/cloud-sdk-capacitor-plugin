@@ -129,6 +129,24 @@ export interface GasStation {
   lastUpdated: Date;
 }
 
+export interface EventResponse {
+  /**
+   * The `id` must be the same as from the received event
+   */
+  id: string;
+
+  /**
+   * The `name` must be the same as from the received event
+   */
+  name: string;
+
+  /**
+   * In case the `value` is an object, make sure to stringify it first
+   */
+  value: string;
+}
+
+
 export enum PresetUrl {
   PACE_ID = 'paceID',
   PAYMENT = 'payment',
@@ -141,6 +159,13 @@ export interface CloudSDKPlugin {
    * @param config is the configuration provided to this method
    */
   setup(config: Configuration): Promise<boolean>;
+
+  /**
+   * Method that can to be called whenever the client wants
+   * to communicate to the plugin in regards to a received event
+   * @param response is the response to a given event
+   */
+   respondToEvent(response: EventResponse): Promise<boolean>;
 
   /**
    * Returns a list of gasStations based on a given coordinate
