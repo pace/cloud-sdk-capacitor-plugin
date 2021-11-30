@@ -146,7 +146,6 @@ export interface EventResponse {
   value: string;
 }
 
-
 export enum PresetUrl {
   PACE_ID = 'paceID',
   PAYMENT = 'payment',
