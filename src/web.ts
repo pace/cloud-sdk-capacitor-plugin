@@ -18,6 +18,10 @@ export class CloudSDKWeb extends WebPlugin implements CloudSDKPlugin {
     throw new Error('This method not is available in web');
   }
 
+  async respondToEvent(_response: EventResponse): Promise<boolean> {
+    throw new Error('This method not is available in web');
+  }
+
   async getNearbyGasStations(_options: {
     coordinate: [number, number];
     radius: number;
@@ -45,4 +49,5 @@ const CloudSDK = new CloudSDKWeb();
 export { CloudSDK };
 
 import { registerWebPlugin } from '@capacitor/core';
+import { EventResponse } from '.';
 registerWebPlugin(CloudSDK);
