@@ -8,6 +8,14 @@
 
 import Foundation
 
+typealias EventResponse = Codable
+
 enum PluginEvent: String {
     case tokenInvalid
+}
+
+struct GetAccessTokenEventResponse: EventResponse {
+    let id: String
+    let reason: String
+    var oldToken: String?
 }
