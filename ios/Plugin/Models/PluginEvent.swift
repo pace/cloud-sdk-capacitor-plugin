@@ -11,7 +11,7 @@ import Foundation
 typealias EventResponse = Codable
 
 enum PluginEvent: String {
-    case tokenInvalid
+    case tokenInvalid = "TOKEN_INVALID"
 }
 
 struct GetAccessTokenEventResponse: EventResponse {
