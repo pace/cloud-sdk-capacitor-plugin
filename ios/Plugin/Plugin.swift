@@ -198,9 +198,11 @@ extension CloudSDK {
 
 // MARK: - Event handling
 extension CloudSDK {
-    func notify(_ event: PluginEvent, data: [String: Any] = [:]) {
+    func notify<T: EventResponse>(_ event: PluginEvent, response: T) {
+        let responseData = CAPPluginCall.pluginResultData(for: response)
+
         dispatchToMainThread { [weak self] in
-            self?.notifyListeners(event.rawValue, data: data)
+            self?.notifyListeners(event.rawValue, data: responseData)
         }
     }
 
@@ -231,14 +233,8 @@ extension CloudSDK: AppKitDelegate {
             let id = UUID().uuidString
             self?.callbacks[id] = completion
 
-            var data: [String: Any] = [Constants.id.rawValue: id,
-                                       Constants.reason.rawValue: reason.rawValue]
-
-            if let oldToken = oldToken {
-                data[Constants.oldToken.rawValue] = oldToken
-            }
-
-            self?.notify(.tokenInvalid, data: data)
+            let eventResponse: GetAccessTokenEventResponse = .init(id: id, reason: reason.rawValue, oldToken: oldToken)
+            self?.notify(.tokenInvalid, response: eventResponse)
         }
     }
 

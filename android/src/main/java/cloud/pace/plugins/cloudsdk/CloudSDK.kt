@@ -250,8 +250,7 @@ class CloudSDK : Plugin() {
     }
 
     fun notify(event: PluginEvent, data: EventNotificationData) {
-        val convertedData = JSObject()
-        convertedData.put(RESULT, Gson().toJson(data))
+        val convertedData = JSObject(Gson().toJson(data))
         notifyListeners(event.name, convertedData)
         Timber.i("Sent SDK notification ${event.name} with id: ${data.id}")
     }

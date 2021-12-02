@@ -82,10 +82,17 @@
 			children = (
 				3BC5D9A626120D3F00DF3CAE /* Array+Extension.swift */,
 				3B76F1B9260B7548008EA118 /* Constants.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		3B8E427C2757A09200DEACCB /* Models */ = {
+			isa = PBXGroup;
+			children = (
 				3B6CA9E626145BE5004D4587 /* PluginEvent.swift */,
 				3B75A6E4260C7AF100E68CAF /* PluginGasStation.swift */,
 			);
-			path = Helpers;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		50ADFF7E201F53D600D50D53 = {
@@ -112,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				3B76F1B1260B678A008EA118 /* Helpers */,
+				3B8E427C2757A09200DEACCB /* Models */,
 				50E1A94720377CB70090CE1A /* Plugin.swift */,
 				3B74101D26270A6400CF9306 /* Plugin+Extension.swift */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
