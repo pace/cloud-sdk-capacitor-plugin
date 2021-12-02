@@ -13,6 +13,7 @@ import cloud.pace.sdk.utils.*
 import com.getcapacitor.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
+import timber.log.Timber
 import java.util.*
 
 @NativePlugin
@@ -28,9 +29,9 @@ class CloudSDK : Plugin() {
             val id = UUID.randomUUID().toString()
             callbacks[id] = onResult
 
-            val data: MutableMap<String, Any> = mutableMapOf(ID to id, REASON to reason)
+            val data = GetAccessTokenNotification(id, reason)
             oldToken?.let {
-                data.put(OLD_TOKEN, it)
+                data.oldToken = it
             }
 
             notify(PluginEvent.TOKEN_INVALID, data)
@@ -51,8 +52,7 @@ class CloudSDK : Plugin() {
 
         val authenticationMode = if (callAuthenticationMode.equals("native", true)) AuthenticationMode.NATIVE else AuthenticationMode.WEB
 
-        val environment = searchEnum(Environment::class.java, callEnvironment)
-            ?: Environment.PRODUCTION
+        val environment = searchEnum(Environment::class.java, callEnvironment) ?: Environment.PRODUCTION
 
         val configuration = Configuration(
             clientAppName = CLIENT_APP_NAME,
@@ -106,13 +106,13 @@ class CloudSDK : Plugin() {
 
     @PluginMethod
     fun startFuelingApp(call: PluginCall) {
-        val inputString = call.getString(POI_ID)
-        if (inputString == null) {
-            call.reject("Failed startFuelingApp: Missing ID")
+        val poiId = call.getString(POI_ID)
+        if (poiId == null) {
+            call.reject("Failed startFuelingApp: Missing POI ID")
             return
         }
 
-        AppKit.openFuelingApp(context, POI_ID, callback = defaultCallback)
+        AppKit.openFuelingApp(context, poiId, callback = defaultCallback)
         call.resolve()
     }
 
@@ -210,45 +210,63 @@ class CloudSDK : Plugin() {
 
     @PluginMethod
     fun respondToEvent(call: PluginCall) {
+        Timber.i("Received event response")
+
+        val id = call.getString(ID)
+        if (id == null) {
+            Timber.e("Failed respondToEvent: Missing value for ID")
+            call.reject("Failed respondToEvent: Missing value for ID")
+            return
+        }
+
+        val callback = callbacks.remove(id)
+
+        if (callbacks == null) {
+            Timber.e("Failed respondToEvent: No callback for given ID")
+            call.reject("Failed respondToEvent: No callback for given ID")
+            return
+        }
+
         val eventName = call.getString(NAME)
         if (eventName == null) {
+            Timber.e("Failed respondToEvent: Missing value for name")
             call.reject("Failed respondToEvent: Missing value for name")
             return
         }
 
         val event = searchEnum(PluginEvent::class.java, eventName)
         if (event == null) {
+            Timber.e("Failed respondToEvent due to an unregistered Event: $eventName")
             call.reject("Failed respondToEvent due to an unregistered Event: $eventName")
         }
 
+        Timber.i("Event data")
+
         when (event) {
             PluginEvent.TOKEN_INVALID -> {
-                handleTokenInvalidEvent(call)
+                handleTokenInvalidEvent(call, callback)
             }
         }
     }
 
-    fun notify(event: PluginEvent, data: Map<String, Any> = hashMapOf()) {
+    fun notify(event: PluginEvent, data: EventNotificationData) {
         val convertedData = JSObject()
-        convertedData.put(RESULT, data)
+        convertedData.put(RESULT, Gson().toJson(data))
         notifyListeners(event.name, convertedData)
+        Timber.i("Sent SDK notification ${event.name} with id: ${data.id}")
     }
 
-    fun handleTokenInvalidEvent(call: PluginCall) {
+    fun handleTokenInvalidEvent(call: PluginCall, callback: Any?) {
+        val callback = callback as? (GetAccessTokenResponse) -> Unit
         val token = call.getString(VALUE)
         if (token == null) {
             call.reject("Failed tokenInvalidEvent due to an invalid or missing token value")
             return
         }
 
-        val id = call.getString(ID)
-        if (id == null) {
-            call.reject("Failed tokenInvalidEvent due missing value for ID")
-        }
+        val tokenResponse = GetAccessTokenResponse(token)
 
-        val callback = callbacks[id] as? (String) -> Unit
-        callback?.invoke(token)
-        callbacks[id] = Unit
+        callback?.invoke(tokenResponse)
         call.resolve()
     }
 
