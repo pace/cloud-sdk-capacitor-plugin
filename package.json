@@ -1,6 +1,6 @@
 {
   "name": "cloud-sdk-capacitor-plugin",
-  "version": "0.0.1",
+  "version": "0.0.17",
   "description": "PACE Cloud SDK is a Capacitor plugin to easily integrate PACE's Connected Fueling into your own apps.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -17,10 +17,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com:MartijnDB/PaceCapacitor3Plugin.git"
+    "url": "https://github.com/pace/cloud-sdk-capacitor-plugin"
   },
   "bugs": {
-    "url": "https://github.com:MartijnDB/PaceCapacitor3Plugin/issues"
+    "url": "https://github.com/pace/cloud-sdk-capacitor-plugin/issues"
   },
   "keywords": [
     "capacitor",
