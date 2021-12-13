@@ -183,7 +183,7 @@ extension CloudSDK {
 
     private func presentViewController(appVC: AppViewController, for call: CAPPluginCall) {
         dispatchToMainThread {
-            self.bridge.viewController.present(appVC, animated: true) {
+            self.bridge?.viewController!.present(appVC, animated: true) {
                 call.resolve()
             }
         }
