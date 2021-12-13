@@ -93,30 +93,14 @@ class CloudSDK : Plugin() {
 
     @PluginMethod
     fun startApp(call: PluginCall) {
-        var url = call.getString(URL)
-        if (url == null) {
+        val inputString = call.getString(URL)
+        if (inputString == null) {
             call.reject("Failed startApp: Missing URL")
             return
         }
 
-        // Check, if it is one of our preset URLs
-        url = when (url) {
-            "paceID" -> {
+        AppKit.openAppActivity(context, inputString, callback = defaultCallback)
 
-
-            }
-            "payment" -> {
-
-            }
-            "transactions" -> {
-
-            }
-            else -> {
-                AppKit.openAppActivity(context, inputString, callback = defaultCallback)
-            }
-        }
-
-        AppKit.openAppActivity(context, url, callback = defaultCallback)
         call.resolve()
     }
 
