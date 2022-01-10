@@ -1,6 +1,7 @@
 package cloud.pace.plugins.cloudsdk
 
 import android.location.Location
+import android.webkit.URLUtil
 import cloud.pace.plugins.cloudsdk.EnumUtils.searchEnum
 import cloud.pace.sdk.PACECloudSDK
 import cloud.pace.sdk.appkit.AppKit
@@ -99,7 +100,26 @@ class CloudSDK : Plugin() {
             return
         }
 
-        AppKit.openAppActivity(context, inputString, callback = defaultCallback)
+        val presetUrl = when (inputString) {
+            DASHBOARD -> cloud.pace.sdk.utils.URL.dashboard
+            FUELING -> cloud.pace.sdk.utils.URL.fueling
+            PACE_ID -> cloud.pace.sdk.utils.URL.paceID
+            PAYMENT -> cloud.pace.sdk.utils.URL.payment
+            TRANSACTIONS -> cloud.pace.sdk.utils.URL.transactions
+            else -> null
+        }
+
+        when {
+            presetUrl != null -> {
+                AppKit.openAppActivity(context, presetUrl, callback = defaultCallback)
+            }
+            URLUtil.isValidUrl(inputString) -> {
+                AppKit.openAppActivity(context, inputString, callback = defaultCallback)
+            }
+            else -> {
+                call.reject("Failed startApp: Invalid value for URL")
+            }
+        }
 
         call.resolve()
     }
@@ -289,6 +309,12 @@ class CloudSDK : Plugin() {
         const val ID = "id"
         const val NAME = "name"
         const val VALUE = "value"
+
+        const val DASHBOARD = "dashboard"
+        const val FUELING = "fueling"
+        const val PACE_ID = "paceID"
+        const val PAYMENT = "payment"
+        const val TRANSACTIONS = "transactions"
 
         const val REASON = "reason"
         const val OLD_TOKEN = "oldToken"
